@@ -7,16 +7,14 @@ mosaic image.
 
 ## Installation
 To use the plugin you must first install the `sentinelhub` python package (not
-in the sequoia virtual environment):
+in a virtual environment):
 
 ```
 pip install sentinelhub
 ```
 
 Once you have done that, you must authenticate your machine to access our
-Sentinel Hub account. The credentials are in the ST LastPass account, you can
-find them by searching for 'Sentinel Hub Authentication'. Once you have found
-the credentials, you can authenticate your machine from the bash terminal:
+Sentinel Hub account. You can authenticate your machine from the bash terminal:
 
 ```
 sentinelhub.config \
