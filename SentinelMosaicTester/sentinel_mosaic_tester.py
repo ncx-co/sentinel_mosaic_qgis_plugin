@@ -570,6 +570,8 @@ class SentinelMosaicTester:
         self.iface.addRasterLayer(output_file, layer_name)
         self.iface.messageBar().clearWidgets()
 
+        return None
+
     def run(self):
         """Run method that loads and starts the plugin"""
 
