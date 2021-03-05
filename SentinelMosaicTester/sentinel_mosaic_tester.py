@@ -565,7 +565,9 @@ class SentinelMosaicTester:
         output_file = '/tmp/mosaic_tests' + '/' + preview_request.get_filename_list()[0]
         
         # add file to QGIS
-        self.iface.addRasterLayer(output_file, "Mosaic Test")
+        layer_name = ' '.join(
+            ['orbits:', orbit_list_string, 'months:', month_string, 'years:', year_string])
+        self.iface.addRasterLayer(output_file, layer_name)
         self.iface.messageBar().clearWidgets()
 
     def run(self):
