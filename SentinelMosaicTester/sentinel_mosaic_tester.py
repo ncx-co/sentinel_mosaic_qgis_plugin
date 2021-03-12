@@ -45,6 +45,7 @@ from qgis.core import (
     )
 
 import numpy as np
+import parse
 import re
 import time
 
@@ -56,6 +57,13 @@ from sentinelhub import BBox, CRS, DataCollection, \
 
 # assumes sentinelhub authentication is set via sentinelhub.config
 config = SHConfig()
+
+S2_GRANULE_ID_FMT = (
+    'S{sat}_{file_class}_{file_category}_' +
+    '{level}_{descriptor}_{site_centre}_' +
+    '{creation_date}_A{absolute_orbit}_' +
+    'T{tile}_{processing_baseline}'
+)
 
 PREVIEW_EVALSCRIPT = """
 //VERSION=3
@@ -181,18 +189,37 @@ function evaluatePixel(samples, scenes) {
 }
 """
 
-def absolute_to_relative_orbit(x, sat):
+
+def absolute_to_relative_orbit(absolute_orbit, sat):
+    '''
+    Translate Sentinel 2 absolute orbit number to relative orbit number. There
+    are 143 relative orbits that are similar to Landsat paths. The relative
+    orbit numbers are not readily visible in some Sentinel 2 product IDs so we
+    must convert from absolute (number of orbits since some origin point in
+    time) to relative orbits (number of orbits since orbit 1).
+    '''
     assert sat in ['2A', '2B']
     if sat == '2A':
         adj = -140
     if sat == '2B':
         adj = -26
 
-    return (x + adj) % 143
+    return (absolute_orbit + adj) % 143
 
 
 def get_dates_by_orbit(bbox, start_date, end_date, max_cc, target_orbit, config):
-    assert target_orbit is not None, "relative_orbit must be specified"
+    '''
+    For a given bounding box, query Sentinel 2 imagery collection dates between
+    two dates (start/end_date) that match a specified list of relative orbits
+    and have a maximum cloud cover proportion.
+
+    * bbox is a WGS84 bounding box created by sentinelhub.Geometry.BBox
+    * start_date and end_date are date strings formatted as yyyy-mm-dd
+    * max_cc is the maximum allowed cloud cover (0-1 scale)
+    * target_orbit is a list containing relative orbit numbers to be included
+    * config is the Sentinel Hub config object created by sentinelhub.SHConfig()
+    '''
+    assert target_orbit is not None, "target_orbit must be specified"
 
     # convert target_orbit to list if just a single orbit
     if type(target_orbit) is int:
@@ -214,16 +241,20 @@ def get_dates_by_orbit(bbox, start_date, end_date, max_cc, target_orbit, config)
     dates = []
     for tile_info in wfs_iterator:
         # raw product ID
-        id = tile_info['properties']['id']
+        product_id = tile_info['properties']['id']
+
+        # parse the product ID
+        product_vals = parse.parse(S2_GRANULE_ID_FMT, product_id)
 
         # acquisition date
         date = tile_info['properties']['date']
 
         # absolute orbit is buried in ID after _A string
-        absolute_orbit = int(re.search("(?<=_A)[\d]+(?=_)", id).group())
+        absolute_orbit = int(product_vals['absolute_orbit'])
 
-        # satellite (either 2A or 2B) is defined at beginning of id
-        sat = id[1:3]
+        # which satellite? 2A or 2B
+        sat = product_vals['sat']
+        assert sat in ('2A', '2B')
 
         # convert to relative orbit
         relative_orbit = absolute_to_relative_orbit(absolute_orbit, sat)
@@ -242,12 +273,16 @@ def get_dates_by_orbit(bbox, start_date, end_date, max_cc, target_orbit, config)
 
 
 def filter_dates(dates, months, years):
+    '''
+    Filter a list of dates (yyyy-mm-dd format) to only include dates from a list
+    of months and years
+    '''
     # convert date strings to date objects
     dates = [dt.datetime.strptime(date, '%Y-%m-%d').date() for date in dates]
 
     # filter down to supplied months/years
-    filtered = [str(date)
-                for date in dates if date.month in months and date.year in years]
+    filtered = [date.strftime(
+        '%Y-%m-%d') for date in dates if date.month in months and date.year in years]
 
     assert len(filtered) > 0, \
         'None of supplied dates satisfy desired months/years'
@@ -439,8 +474,6 @@ class SentinelMosaicTester:
         progressMessageBar.layout().addWidget(progress)
         self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
-        project = QgsProject.instance()
-
         # get bounding box from selected layer
         layer = self.dockwidget.selected_layer.currentLayer()
         src_crs = layer.crs()
@@ -560,7 +593,7 @@ class SentinelMosaicTester:
             config=config
         )
 
-        preview_data = preview_request.get_data(save_data=True)
+        preview_request.get_data(save_data=True)
         progress.setValue(3)
         output_file = '/tmp/mosaic_tests' + '/' + preview_request.get_filename_list()[0]
         
