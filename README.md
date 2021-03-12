@@ -8,12 +8,38 @@ mosaic image.
 
 ## Installation
 
-To use the plugin you must first install the `sentinelhub` python package (not
-in a virtual environment):
+To use the plugin you must first install the `sentinelhub` python package.
+This can be done in a virtual environment but there are additional steps required
+in that case.
 
+### No virtual environment
+To install sentinelhub without a virtual environment you can simply run this:
 ```
 pip install sentinelhub
 ```
+
+### Yes virtual environment
+To install sentinelhub package in a virtual environment you need to run this:
+```bash
+workon {env}
+pip install sentinelhub
+```
+
+Then in QGIS you need to add your virtual environment to the python path.
+You can add a few lines to a script called `startup.py` in your QGIS home
+directory:
+  1. Locate the QGIS home directory by navigating the menu bar to
+     'Settings' > 'User Profiles' > 'Open Active Profile Folder'. This directory
+     is located within the QGIS home directory so now you need to navigate up to
+     a folder called 'QGIS3'. Once you have found this directory make a file
+     called `startup.py` and add these lines:
+     ```python
+     import sys
+     import os
+     sys.path = [os.environ['WORKON_HOME'] + '{env}/lib/python3.8/site-packages'] + sys.path
+     ```
+     This will add the virtualenv to your QGIS python path and you should be
+     able to use the `sentinelhub` package from within QGIS.
 
 Once you have done that, you must authenticate your machine to access our
 Sentinel Hub account. You can authenticate your machine from the bash terminal:
@@ -24,8 +50,6 @@ sentinelhub.config \
   --sh_client_id '<sh_client_id>' \
   --sh_client_secret '<sh_client_secret>'
 ```
-
-Full command is available in LastPast under "Sentinel Hub Authentication".
 
 The plugin can be added to QGIS by downloading the
 [zip file](https://github.com/SilviaTerra/sentinel_mosaic_qgis_plugin/releases/download/v0.1/SentinelMosaicTester.zip)
@@ -98,3 +122,23 @@ orbits_dissolved <- orbits_raw %>%
 
 sf::st_write(orbits_dissolved, "sentinel_orbits.geojson")
 ```
+
+## Development
+If you clone the repo and work on it locally, you can deploy changes to QGIS
+using the system package `plugin_build_tool` (`pbt`).
+
+http://g-sherman.github.io/plugin_build_tool/
+
+You will need to modify the file [SentinelMosaicTester/pb_tool.cfg](./SentinelMosaicTester/pb_tool.cfg) to point to the
+correct QGIS plugin directory on your machine.
+
+```bash
+cd sentinel_mosaic_qgis_plugin/SentinelMosaicTester
+
+pbt deploy
+```
+
+This will copy the source code into your QGIS plugin folder.
+In QGIS you can use the 'Plugin Reloader' plugin to refresh the plugin in your
+QGIS session.
+
