@@ -103,7 +103,9 @@ Gotcha: if you're getting a `pyproj._network` error, try upgrading your QGIS to 
 
 ## Sentinel Orbits
 
-The sentinel orbit geospatial data is helpful to have in QGIS when you are experimenting with different mosaic settings. A GeoJSON of the relative orbits for Sentinel 2 is can be downloaded [here](sentinel_orbits.geojson).
+The sentinel orbit geospatial data is helpful to have in QGIS when you are
+experimenting with different mosaic settings. A GeoJSON of the relative orbits
+for Sentinel 2 is can be downloaded [here](sentinel_orbits.geojson).
 
 Here is the R code used to scrape the data and create the GeoJSON:
 
@@ -129,8 +131,9 @@ using the system package `plugin_build_tool` (`pbt`).
 
 http://g-sherman.github.io/plugin_build_tool/
 
-You will need to modify the file [SentinelMosaicTester/pb_tool.cfg](./SentinelMosaicTester/pb_tool.cfg) to point to the
-correct QGIS plugin directory on your machine.
+You will need to modify the file
+[SentinelMosaicTester/pb_tool.cfg](./SentinelMosaicTester/pb_tool.cfg) to 
+point to the correct QGIS plugin directory on your machine.
 
 ```bash
 cd sentinel_mosaic_qgis_plugin/SentinelMosaicTester
