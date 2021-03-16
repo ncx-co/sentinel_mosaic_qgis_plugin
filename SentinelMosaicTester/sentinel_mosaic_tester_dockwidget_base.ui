@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SentinelMosaicTesterDockWidgetBase</class>
+ <widget class="QDockWidget" name="SentinelMosaicTesterDockWidgetBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>659</width>
+    <height>456</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SentinelMosaicTester</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="9" column="1">
+     <widget class="QCheckBox" name="month_february">
+      <property name="text">
+       <string>February</string>
+      </property>
+     </widget>
+    </item>
+    <item row="19" column="1">
+     <widget class="QPushButton" name="order_mosaic">
+      <property name="text">
+       <string>Order Mosaic Preview</string>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="2">
+     <widget class="QCheckBox" name="month_december">
+      <property name="text">
+       <string>December</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="0">
+     <widget class="QLabel" name="relative_orbit_label">
+      <property name="text">
+       <string>Relative Orbits</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="1">
+     <widget class="QCheckBox" name="month_january">
+      <property name="text">
+       <string>January</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1">
+     <widget class="QCheckBox" name="month_may">
+      <property name="text">
+       <string>May</string>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="3">
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="18" column="1">
+     <widget class="QgsMapLayerComboBox" name="selected_layer"/>
+    </item>
+    <item row="11" column="2">
+     <widget class="QCheckBox" name="month_october">
+      <property name="text">
+       <string>October</string>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="1">
+     <widget class="QCheckBox" name="month_june">
+      <property name="text">
+       <string>June</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="2">
+     <widget class="QCheckBox" name="month_september">
+      <property name="text">
+       <string>September</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QCheckBox" name="year_2021">
+      <property name="text">
+       <string>2021</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="2">
+     <widget class="QCheckBox" name="month_august">
+      <property name="text">
+       <string>August</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QCheckBox" name="year_2018">
+      <property name="text">
+       <string>2018</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="year_label">
+      <property name="text">
+       <string>Years</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="16" column="1">
+     <widget class="QLineEdit" name="max_cc">
+      <property name="text">
+       <string>0.2</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="1">
+     <widget class="QLineEdit" name="relative_orbit">
+      <property name="placeholderText">
+       <string>comma separated list of orbits</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="month_label">
+      <property name="text">
+       <string>Months</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="2">
+     <widget class="QCheckBox" name="month_july">
+      <property name="text">
+       <string>July</string>
+      </property>
+     </widget>
+    </item>
+    <item row="16" column="0">
+     <widget class="QLabel" name="max_cc_label">
+      <property name="text">
+       <string>Max Cloud Cover proportion</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="2">
+     <widget class="QCheckBox" name="month_november">
+      <property name="text">
+       <string>November</string>
+      </property>
+     </widget>
+    </item>
+    <item row="18" column="0">
+     <widget class="QLabel" name="selected_layer_label">
+      <property name="text">
+       <string>Layer for bounding box</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QCheckBox" name="year_2020">
+      <property name="text">
+       <string>2020</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <widget class="QCheckBox" name="month_march">
+      <property name="text">
+       <string>March</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QCheckBox" name="month_april">
+      <property name="text">
+       <string>April</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QCheckBox" name="year_2019">
+      <property name="text">
+       <string>2019</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsmaplayercombobox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
