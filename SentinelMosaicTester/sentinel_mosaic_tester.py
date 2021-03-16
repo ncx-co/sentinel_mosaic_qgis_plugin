@@ -506,6 +506,14 @@ class SentinelMosaicTester:
 
         # filter down to desired months/years
         months = []
+        if self.dockwidget.month_january.isChecked():
+            months.append(1)
+        if self.dockwidget.month_february.isChecked():
+            months.append(2)
+        if self.dockwidget.month_march.isChecked():
+            months.append(3)
+        if self.dockwidget.month_april.isChecked():
+            months.append(4)
         if self.dockwidget.month_may.isChecked():
             months.append(5)
         if self.dockwidget.month_june.isChecked():
@@ -516,6 +524,12 @@ class SentinelMosaicTester:
             months.append(8)
         if self.dockwidget.month_september.isChecked():
             months.append(9)
+        if self.dockwidget.month_october.isChecked():
+            months.append(10)
+        if self.dockwidget.month_november.isChecked():
+            months.append(11)
+        if self.dockwidget.month_december.isChecked():
+            months.append(12)
         
         month_string = ' & '.join([str(x) for x in months])
         QgsMessageLog.logMessage(
@@ -530,6 +544,8 @@ class SentinelMosaicTester:
             years.append(2019)
         if self.dockwidget.year_2020.isChecked():
             years.append(2020)
+        if self.dockwidget.year_2021.isChecked():
+            years.append(2021)
         
         year_string = ' & '.join([str(x) for x in years])
         QgsMessageLog.logMessage(
