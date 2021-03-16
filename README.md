@@ -145,3 +145,24 @@ This will copy the source code into your QGIS plugin folder.
 In QGIS you can use the 'Plugin Reloader' plugin to refresh the plugin in your
 QGIS session.
 
+## Uploading an installable release
+The easiest way to distribute a new release is to zip the contents of the
+SentinelMosaicTester directory and upload to GitHub.
+
+1. Zip the package contents
+  ```bash
+  cd sentinel_mosaic_qgis_plugin
+  zip -r SentinelMosaicTester.zip SentinelMosaicTester
+  ```
+
+2. Create a tag
+  ```bash
+  git tag v{version} -m 'SentinelMosaicTester v{version}'
+  ```
+
+3. Publish a release via `gh` (GitHub command line interface). This will create
+   a release on the specified tag and attach the .zip created in step 1.
+  ```bash
+  gh release create v{version} SentinelMosaicTester.zip
+  ```
+  You can also create the release from the GitHub web interface.
