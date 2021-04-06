@@ -53,6 +53,8 @@ sentinelhub.config \
 
 (Credentials here are in LastPass.)
 
+If `sentinelhub.config` crashes with `OSError: Could not find lib c or load any of its variants []`, you may need to upgrade the `shapely` library to 1.7.1 or above. Run `pip install -U shapely` and then try again.
+
 The plugin can be added to QGIS by downloading the
 [zip file](https://github.com/SilviaTerra/sentinel_mosaic_qgis_plugin/releases/download/v0.1/SentinelMosaicTester.zip)
 at the v0.1 release page and installing via the QGIS Plugin Manager
