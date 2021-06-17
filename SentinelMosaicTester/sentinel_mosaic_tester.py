@@ -425,10 +425,10 @@ class SentinelMosaicTester:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/sentinel_mosaic_tester/icon.png'
+        icon_path = ':/plugins/SentinelMosaicTester/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Get Low Resolution Mosaic'),
+            text=self.tr(u'Get Mosaic'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -465,7 +465,7 @@ class SentinelMosaicTester:
         del self.toolbar
 
     #--------------------------------------------------------------------------
-    def do_it(self):
+    def run_default(self):
 
         progressMessageBar = self.iface.messageBar().createMessage('Getting mosaic preview')
         progress = QProgressBar()
@@ -621,6 +621,76 @@ class SentinelMosaicTester:
 
         return None
 
+    def run_custom_evalscript(self):
+
+        progressMessageBar = self.iface.messageBar().createMessage('Getting mosaic preview')
+        progress = QProgressBar()
+        progress.setMaximum(3)
+        progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        progressMessageBar.layout().addWidget(progress)
+        self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
+
+        # get bounding box from selected layer
+        layer = self.dockwidget.selected_layer.currentLayer()
+        src_crs = layer.crs()
+        layer_extent = layer.extent()
+        if src_crs != QgsCoordinateReferenceSystem('EPSG:4326'):
+            transform = QgsCoordinateTransform(
+                src_crs, QgsCoordinateReferenceSystem('EPSG:4326'), QgsProject.instance())
+            layer_extent = transform.transformBoundingBox(layer_extent)
+        
+        min_x = layer_extent.xMinimum()
+        min_y = layer_extent.yMinimum()
+        max_x = layer_extent.xMaximum()
+        max_y = layer_extent.yMaximum()
+        
+        QgsMessageLog.logMessage(
+            f'bounding box: {min_x}, {min_y}, {max_x}, {max_y}',
+            level=Qgis.Info
+            )
+        
+        bbox = BBox(bbox=[min_x, min_y, max_x, max_y], crs=CRS.WGS84)
+
+        custom_evalscript_code = self.dockwidget.custom_evalscript_code.text()
+
+        # substitute preview_eval with custom_evalscript_code from user
+        preview_eval = custom_evalscript_code
+        
+        QgsMessageLog.logMessage(
+            'requesting preview image',
+            level=Qgis.Info
+            )
+
+        # if we're inputting custom EvalScript code, are time_intrval and maxcc needed? In other words, is this GTG
+        preview_request = SentinelHubRequest(
+            evalscript=preview_eval,
+            data_folder='/tmp/mosaic_tests',
+            input_data=[
+                SentinelHubRequest.input_data(
+                    data_collection=DataCollection.SENTINEL2_L2A
+                    # time_interval=time_interval,
+                    # maxcc=max_cc
+                )
+            ],
+            responses=[
+                SentinelHubRequest.output_response('default', MimeType.TIFF)
+            ],
+            bbox=bbox,
+            size=(512, get_image_dimension(bbox=bbox, width=512)),
+            config=config
+        )
+
+        preview_request.get_data(save_data=True)
+        progress.setValue(3)
+        output_file = '/tmp/mosaic_tests' + '/' + preview_request.get_filename_list()[0]
+        
+        # add file to QGIS
+        layer_name = 'custom_mosaic'
+        self.iface.addRasterLayer(output_file, layer_name)
+        self.iface.messageBar().clearWidgets()
+
+        return None
+
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -644,6 +714,7 @@ class SentinelMosaicTester:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
-            self.dockwidget.order_mosaic.clicked.connect(self.do_it)
+            self.dockwidget.order_mosaic_default_btn.clicked.connect(self.run_default)
+            self.dockwidget.order_mosaic_custom_evalscript_btn.clicked.connect(self.run_custom_evalscript)
             
                 
