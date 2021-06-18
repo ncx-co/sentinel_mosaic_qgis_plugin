@@ -424,8 +424,7 @@ class SentinelMosaicTester:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
-        icon_path = ':/plugins/SentinelMosaicTester/icon.png'
+        icon_path = '/Users/natasharavinand/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/SentinelMosaicTester/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Get Mosaic'),
@@ -465,6 +464,7 @@ class SentinelMosaicTester:
         del self.toolbar
 
     #--------------------------------------------------------------------------
+    # for default evalscript code
     def run_default(self):
 
         progressMessageBar = self.iface.messageBar().createMessage('Getting mosaic preview')
@@ -475,7 +475,7 @@ class SentinelMosaicTester:
         self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
         # get bounding box from selected layer
-        layer = self.dockwidget.selected_layer.currentLayer()
+        layer = self.dockwidget.default_selected_layer.currentLayer()
         src_crs = layer.crs()
         layer_extent = layer.extent()
         if src_crs != QgsCoordinateReferenceSystem('EPSG:4326'):
@@ -555,7 +555,7 @@ class SentinelMosaicTester:
         progress.setValue(1)
 
         # date range for mosaicing
-        max_cc = float(self.dockwidget.max_cc.text())
+        max_cc = float(self.dockwidget.default_max_cc.text())
         first_year, last_year = str(min(years)), str(max(years))
         start_date, end_date = f'{first_year}-01-01', f'{last_year}-12-30'
 
@@ -621,6 +621,7 @@ class SentinelMosaicTester:
 
         return None
 
+    # for custom evalscript code
     def run_custom_evalscript(self):
 
         progressMessageBar = self.iface.messageBar().createMessage('Getting mosaic preview')
@@ -631,7 +632,7 @@ class SentinelMosaicTester:
         self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
         # get bounding box from selected layer
-        layer = self.dockwidget.selected_layer.currentLayer()
+        layer = self.dockwidget.custom_selected_layer.currentLayer()
         src_crs = layer.crs()
         layer_extent = layer.extent()
         if src_crs != QgsCoordinateReferenceSystem('EPSG:4326'):
@@ -651,25 +652,30 @@ class SentinelMosaicTester:
         
         bbox = BBox(bbox=[min_x, min_y, max_x, max_y], crs=CRS.WGS84)
 
-        custom_evalscript_code = self.dockwidget.custom_evalscript_code.text()
+        # set time time interval
+        start_date, end_date = self.dockwidget.start_date.text(), self.dockwidget.end_date.text()
+        time_interval = [start_date, end_date]
 
-        # substitute preview_eval with custom_evalscript_code from user
+        # set max_cc
+        max_cc = float(self.dockwidget.custom_max_cc.text())
+
+        # grab user inputted custom evalscript and substitute generic
+        custom_evalscript_code = self.dockwidget.custom_evalscript_code.toPlainText()
         preview_eval = custom_evalscript_code
         
         QgsMessageLog.logMessage(
             'requesting preview image',
             level=Qgis.Info
             )
-
-        # if we're inputting custom EvalScript code, are time_intrval and maxcc needed? In other words, is this GTG
+        
         preview_request = SentinelHubRequest(
             evalscript=preview_eval,
             data_folder='/tmp/mosaic_tests',
             input_data=[
                 SentinelHubRequest.input_data(
-                    data_collection=DataCollection.SENTINEL2_L2A
-                    # time_interval=time_interval,
-                    # maxcc=max_cc
+                    data_collection=DataCollection.SENTINEL2_L2A,
+                    time_interval=time_interval,
+                    maxcc=max_cc
                 )
             ],
             responses=[
@@ -685,7 +691,7 @@ class SentinelMosaicTester:
         output_file = '/tmp/mosaic_tests' + '/' + preview_request.get_filename_list()[0]
         
         # add file to QGIS
-        layer_name = 'custom_mosaic'
+        layer_name = 'default'
         self.iface.addRasterLayer(output_file, layer_name)
         self.iface.messageBar().clearWidgets()
 
@@ -714,6 +720,7 @@ class SentinelMosaicTester:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
+            # run different functions depending on custom evalscript or default
             self.dockwidget.order_mosaic_default_btn.clicked.connect(self.run_default)
             self.dockwidget.order_mosaic_custom_evalscript_btn.clicked.connect(self.run_custom_evalscript)
             

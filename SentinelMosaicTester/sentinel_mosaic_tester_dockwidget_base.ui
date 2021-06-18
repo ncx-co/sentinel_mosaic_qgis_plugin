@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
+    <width>520</width>
     <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>520</width>
-    <height>500</height>
+    <width>500</width>
+    <height>250</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
+    <width>520</width>
     <height>500</height>
    </size>
   </property>
@@ -39,11 +39,11 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QTabWidget" name="tab_widget">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
       <property name="minimumSize">
        <size>
-        <width>520</width>
+        <width>510</width>
         <height>485</height>
        </size>
       </property>
@@ -60,7 +60,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="default_mosaic_tab">
        <attribute name="title">
@@ -326,7 +326,7 @@
          <string>Enter comma separated list of orbits</string>
         </property>
        </widget>
-       <widget class="QLabel" name="max_cc_label">
+       <widget class="QLabel" name="default_max_cc_label">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -339,7 +339,7 @@
          <string>Max Cloud Cover proportion</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="max_cc">
+       <widget class="QLineEdit" name="default_max_cc">
         <property name="geometry">
          <rect>
           <x>200</x>
@@ -352,7 +352,7 @@
          <string>0.2</string>
         </property>
        </widget>
-       <widget class="QLabel" name="selected_layer_label">
+       <widget class="QLabel" name="default_selected_layer_label">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -362,10 +362,10 @@
          </rect>
         </property>
         <property name="text">
-         <string>Layer for bounding box</string>
+         <string>Layer for Bounding Box</string>
         </property>
        </widget>
-       <widget class="QgsMapLayerComboBox" name="selected_layer">
+       <widget class="QgsMapLayerComboBox" name="default_selected_layer">
         <property name="geometry">
          <rect>
           <x>170</x>
@@ -396,8 +396,8 @@
        <widget class="QPushButton" name="order_mosaic_custom_evalscript_btn">
         <property name="geometry">
          <rect>
-          <x>90</x>
-          <y>370</y>
+          <x>70</x>
+          <y>400</y>
           <width>355</width>
           <height>32</height>
          </rect>
@@ -409,27 +409,119 @@
        <widget class="QPlainTextEdit" name="custom_evalscript_code">
         <property name="geometry">
          <rect>
-          <x>30</x>
-          <y>90</y>
-          <width>461</width>
-          <height>231</height>
+          <x>20</x>
+          <y>200</y>
+          <width>451</width>
+          <height>191</height>
          </rect>
         </property>
         <property name="placeholderText">
-         <string>Enter custom EvalScript</string>
+         <string>Enter custom EvalScript (Note: returns a single raster named &quot;default&quot;)</string>
         </property>
        </widget>
        <widget class="QLabel" name="custom_evalscript_label">
         <property name="geometry">
          <rect>
-          <x>30</x>
-          <y>30</y>
-          <width>111</width>
+          <x>20</x>
+          <y>170</y>
+          <width>451</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
          <string>Custom EvalScript</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="start_date_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>161</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start Date (YYYY-MM-DD)</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="start_date">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>20</y>
+          <width>113</width>
+          <height>21</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="end_date_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>50</y>
+          <width>161</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>End Date (YYYY-MM-DD)</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="end_date">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>50</y>
+          <width>113</width>
+          <height>21</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="custom_max_cc_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>90</y>
+          <width>171</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Max Cloud Cover proportion</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="custom_max_cc">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>90</y>
+          <width>41</width>
+          <height>21</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="custom_selected_layer_label">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>130</y>
+          <width>141</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Layer for Bounding Box</string>
+        </property>
+       </widget>
+       <widget class="QgsMapLayerComboBox" name="custom_selected_layer">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>120</y>
+          <width>321</width>
+          <height>41</height>
+         </rect>
         </property>
        </widget>
       </widget>
