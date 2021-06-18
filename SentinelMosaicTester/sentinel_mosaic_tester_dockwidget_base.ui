@@ -500,6 +500,9 @@
           <height>21</height>
          </rect>
         </property>
+        <property name="text">
+         <string>0.2</string>
+        </property>
        </widget>
        <widget class="QLabel" name="custom_selected_layer_label">
         <property name="geometry">

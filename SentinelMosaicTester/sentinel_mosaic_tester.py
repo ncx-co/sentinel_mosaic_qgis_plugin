@@ -65,130 +65,10 @@ S2_GRANULE_ID_FMT = (
     'T{tile}_{processing_baseline}'
 )
 
-PREVIEW_EVALSCRIPT = """
-//VERSION=3
-
-// based on this evalscript:
-// https://github.com/sentinel-hub/custom-scripts/blob/master/sentinel-2/cloudless_mosaic/L2A-first_quartile_4bands.js
-
-function setup() {
-  return {
-    input: [{
-      bands: [
-        "B08", // near infrared
-        "B03", // green
-        "B02", // blue
-        "SCL" // pixel classification
-      ],
-      units: "DN"
-    }],
-    output: [
-      {
-        id: "default",
-        bands: 3,
-        sampleType: SampleType.UINT16
-      }
-    ],
-    mosaicking: "ORBIT"
-  };
-}
-
-// acceptable images are ones collected on specified dates
-function filterScenes(availableScenes, inputMetadata) {
-  var allowedDates = [%s]; // format with python
-  return availableScenes.filter(function (scene) {
-    var sceneDateStr = scene.date.toISOString().split("T")[0]; //converting date and time to string and rounding to day precision
-    return allowedDates.includes(sceneDateStr);
-  });
-}
-
-function getValue(values) {
-  values.sort(function (a, b) {
-    return a - b;
-  });
-  return getMedian(values);
-}
-
-// function for pulling median (second quartile) of values
-function getMedian(sortedValues) {
-  var index = Math.floor(sortedValues.length / 2);
-  return sortedValues[index];
-}
-
-function validate(samples) {
-  var scl = samples.SCL;
-
-  if (scl === 3) { // SC_CLOUD_SHADOW
-    return false;
-  } else if (scl === 9) { // SC_CLOUD_HIGH_PROBA
-    return false;
-  } else if (scl === 8) { // SC_CLOUD_MEDIUM_PROBA
-    return false;
-  } else if (scl === 7) { // SC_CLOUD_LOW_PROBA
-    // return false;
-  } else if (scl === 10) { // SC_THIN_CIRRUS
-    return false;
-  } else if (scl === 11) { // SC_SNOW_ICE
-    return false;
-  } else if (scl === 1) { // SC_SATURATED_DEFECTIVE
-    return false;
-  } else if (scl === 2) { // SC_DARK_FEATURE_SHADOW
-    // return false;
-  }
-  return true;
-}
-
-function evaluatePixel(samples, scenes) {
-  var clo_b02 = [];
-  var clo_b03 = [];
-  var clo_b08 = [];
-  var clo_b02_invalid = [];
-  var clo_b03_invalid = [];
-  var clo_b08_invalid = [];
-  var a = 0;
-  var a_invalid = 0;
-
-  for (var i = 0; i < samples.length; i++) {
-    var sample = samples[i];
-    if (sample.B02 > 0 && sample.B03 > 0 && sample.B08 > 0) {
-      var isValid = validate(sample);
-
-      if (isValid) {
-        clo_b02[a] = sample.B02;
-        clo_b03[a] = sample.B03;
-        clo_b08[a] = sample.B08;
-        a = a + 1;
-      } else {
-        clo_b02_invalid[a_invalid] = sample.B02;
-        clo_b03_invalid[a_invalid] = sample.B03;
-        clo_b08_invalid[a_invalid] = sample.B08;
-        a_invalid = a_invalid + 1;
-      }
-    }
-  }
-
-  var gValue;
-  var bValue;
-  var nValue;
-  if (a > 0) {
-    gValue = getValue(clo_b03);
-    bValue = getValue(clo_b02);
-    nValue = getValue(clo_b08);
-  } else if (a_invalid > 0) {
-    gValue = getValue(clo_b03_invalid);
-    bValue = getValue(clo_b02_invalid);
-    nValue = getValue(clo_b08_invalid);
-  } else {
-    gValue = 0;
-    bValue = 0;
-    nValue = 0;
-  }
-  return {
-    default: [nValue, gValue, bValue]
-  };
-}
-"""
-
+# read default evalscript into string from default_evalscript.js
+default_evalscript_path = "/Users/natasharavinand/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/SentinelMosaicTester/default_evalscript.js"
+with open(default_evalscript_path, "r") as f:
+    PREVIEW_EVALSCRIPT = f.read()
 
 def absolute_to_relative_orbit(absolute_orbit, sat):
     '''
@@ -288,6 +168,7 @@ def filter_dates(dates, months, years):
         'None of supplied dates satisfy desired months/years'
 
     return filtered
+
 
 class SentinelMosaicTester:
     """QGIS Plugin Implementation."""
@@ -463,10 +344,13 @@ class SentinelMosaicTester:
         # remove the toolbar
         del self.toolbar
 
-    #--------------------------------------------------------------------------
-    # for default evalscript code
-    def run_default(self):
+    def get_initial_elements(self):
+        '''
+        Run progress messages and return progress object, bounding box for the mosaic
 
+        :returns: Progress amd bbox objects
+        :rtype: QProgressBar, BBox
+        '''
         progressMessageBar = self.iface.messageBar().createMessage('Getting mosaic preview')
         progress = QProgressBar()
         progress.setMaximum(3)
@@ -475,7 +359,7 @@ class SentinelMosaicTester:
         self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
         # get bounding box from selected layer
-        layer = self.dockwidget.default_selected_layer.currentLayer()
+        layer = self.dockwidget.custom_selected_layer.currentLayer()
         src_crs = layer.crs()
         layer_extent = layer.extent()
         if src_crs != QgsCoordinateReferenceSystem('EPSG:4326'):
@@ -494,6 +378,18 @@ class SentinelMosaicTester:
             )
         
         bbox = BBox(bbox=[min_x, min_y, max_x, max_y], crs=CRS.WGS84)
+
+        return progress, bbox
+
+    #--------------------------------------------------------------------------
+
+    def run_default_evalscript(self):
+        """
+        Run operations given default evalscript code and return a raster layer based on specifications
+        """
+
+        # get progress, bounding box
+        progress, bbox = self.get_initial_elements()
 
         # make list of relative orbits
         orbit_string = self.dockwidget.relative_orbit.text()
@@ -625,43 +521,21 @@ class SentinelMosaicTester:
 
         return None
 
-    # for custom evalscript code
     def run_custom_evalscript(self):
 
-        progressMessageBar = self.iface.messageBar().createMessage('Getting mosaic preview')
-        progress = QProgressBar()
-        progress.setMaximum(3)
-        progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        progressMessageBar.layout().addWidget(progress)
-        self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
+        """
+        Run operations given user inputted custom evalscript code and return a raster layer based on specifications
+        """
 
-        # get bounding box from selected layer
-        layer = self.dockwidget.custom_selected_layer.currentLayer()
-        src_crs = layer.crs()
-        layer_extent = layer.extent()
-        if src_crs != QgsCoordinateReferenceSystem('EPSG:4326'):
-            transform = QgsCoordinateTransform(
-                src_crs, QgsCoordinateReferenceSystem('EPSG:4326'), QgsProject.instance())
-            layer_extent = transform.transformBoundingBox(layer_extent)
-        
-        min_x = layer_extent.xMinimum()
-        min_y = layer_extent.yMinimum()
-        max_x = layer_extent.xMaximum()
-        max_y = layer_extent.yMaximum()
-        
-        QgsMessageLog.logMessage(
-            f'bounding box: {min_x}, {min_y}, {max_x}, {max_y}',
-            level=Qgis.Info
-            )
-        
-        bbox = BBox(bbox=[min_x, min_y, max_x, max_y], crs=CRS.WGS84)
+        # get progress, bounding box
+        progress, bbox = self.get_initial_elements()
 
         # validate and set time interval
         start_date, end_date = self.dockwidget.start_date.text(), self.dockwidget.end_date.text()
-        proper_date_format = "%Y-%m-%d"
+        accepted_date_format = "%Y-%m-%d"
         try:
-            dt.datetime.strptime(start_date, proper_date_format)
-            dt.datetime.strptime(end_date, proper_date_format)
+            dt.datetime.strptime(start_date, accepted_date_format)
+            dt.datetime.strptime(end_date, accepted_date_format)
         except ValueError:
             raise ValueError("Please enter start and end dates with the format of YYYY-MM-DD (ex. 2000-01-01).")
         
@@ -735,7 +609,5 @@ class SentinelMosaicTester:
             self.dockwidget.show()
 
             # run different functions depending on custom evalscript or default
-            self.dockwidget.order_mosaic_default_btn.clicked.connect(self.run_default)
+            self.dockwidget.order_mosaic_default_btn.clicked.connect(self.run_default_evalscript)
             self.dockwidget.order_mosaic_custom_evalscript_btn.clicked.connect(self.run_custom_evalscript)
-            
-                

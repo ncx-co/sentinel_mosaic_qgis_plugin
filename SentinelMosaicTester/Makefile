@@ -48,7 +48,7 @@ PY_FILES = \
 
 UI_FILES = sentinel_mosaic_tester_dockwidget_base.ui
 
-EXTRAS = metadata.txt icon.png
+EXTRAS = default_evalscript.js metadata.txt icon.png
 
 EXTRA_DIRS =
 
@@ -65,7 +65,7 @@ PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
 #	* Windows:
 #	  AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins'
 
-QGISDIR=/home/henry/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
+QGISDIR=Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/
 
 #################################################
 # Normally you would not need to edit below here
