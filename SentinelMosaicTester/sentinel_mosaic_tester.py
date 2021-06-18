@@ -424,7 +424,7 @@ class SentinelMosaicTester:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        icon_path = '/Users/natasharavinand/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/SentinelMosaicTester/icon.png'
+        icon_path = '/Users/natasharavinand/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/SentinelMosaicTester/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Get Mosaic'),
@@ -556,6 +556,10 @@ class SentinelMosaicTester:
 
         # date range for mosaicing
         max_cc = float(self.dockwidget.default_max_cc.text())
+        # validate max_cc input
+        if max_cc < 0 or max_cc > 1:
+            raise ValueError("Please enter a max cloud cover proportion between 0 and 1.")
+
         first_year, last_year = str(min(years)), str(max(years))
         start_date, end_date = f'{first_year}-01-01', f'{last_year}-12-30'
 
@@ -652,12 +656,22 @@ class SentinelMosaicTester:
         
         bbox = BBox(bbox=[min_x, min_y, max_x, max_y], crs=CRS.WGS84)
 
-        # set time time interval
+        # validate and set time interval
         start_date, end_date = self.dockwidget.start_date.text(), self.dockwidget.end_date.text()
+        proper_date_format = "%Y-%m-%d"
+        try:
+            dt.datetime.strptime(start_date, proper_date_format)
+            dt.datetime.strptime(end_date, proper_date_format)
+        except ValueError:
+            raise ValueError("Please enter start and end dates with the format of YYYY-MM-DD (ex. 2000-01-01).")
+        
         time_interval = [start_date, end_date]
 
-        # set max_cc
+        # set and validate max_cc
         max_cc = float(self.dockwidget.custom_max_cc.text())
+
+        if max_cc < 0 or max_cc > 1:
+            raise ValueError("Please enter a max cloud cover proportion between 0 and 1.")
 
         # grab user inputted custom evalscript and substitute generic
         custom_evalscript_code = self.dockwidget.custom_evalscript_code.toPlainText()
