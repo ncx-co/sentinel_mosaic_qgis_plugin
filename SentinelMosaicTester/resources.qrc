@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/sentinel_mosaic_tester" >
+    <qresource prefix="/plugins/SentinelMosaicTester">
         <file>icon.png</file>
     </qresource>
 </RCC>
