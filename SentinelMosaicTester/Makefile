@@ -48,7 +48,7 @@ PY_FILES = \
 
 UI_FILES = sentinel_mosaic_tester_dockwidget_base.ui
 
-EXTRAS = default_evalscript.js metadata.txt icon.png
+EXTRAS = metadata.txt icon.png
 
 EXTRA_DIRS =
 
