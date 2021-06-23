@@ -30,6 +30,9 @@ from .resources import *
 # Import the code for the DockWidget
 from .sentinel_mosaic_tester_dockwidget import SentinelMosaicTesterDockWidget
 
+# import custom utils
+from .sentinel_utils import *
+
 import os.path
 
 from qgis.core import (
@@ -55,9 +58,6 @@ import datetime as dt
 from sentinelhub import BBox, CRS, DataCollection, \
     get_image_dimension, MimeType, SentinelHubRequest, \
     SHConfig
-
-# import utils
-from .sentinel_utils import *
 
 # assumes sentinelhub authentication is set via sentinelhub.config
 config = SHConfig()
@@ -240,8 +240,11 @@ class SentinelMosaicTester:
         '''
         Return bounding box for the mosaic
 
-        :returns: bbox object
-        :rtype: BBox
+        Parameters:
+        default (boolean): True if calling function if run_default_evalscript, False if run_custom_evalscript
+        
+        Returns: 
+        bbox (Bbox): Bbox object
         '''
 
         # get bounding box from selected layer
@@ -410,8 +413,12 @@ class SentinelMosaicTester:
         output_file = '/tmp/mosaic_tests' + '/' + preview_request.get_filename_list()[0]
         
         # add file to QGIS
-        layer_name = ' '.join(
-            ['orbits:', orbit_list_string, 'months:', month_string, 'years:', year_string])
+        default_layer_name_input = self.dockwidget.default_layer_name_input.text()
+        if len(default_layer_name_input) != 0:
+            layer_name = default_layer_name_input
+        else:
+            layer_name = ' '.join(
+                ['orbits:', orbit_list_string, 'months:', month_string, 'years:', year_string])
         self.iface.addRasterLayer(output_file, layer_name)
         self.iface.messageBar().clearWidgets()
 
@@ -482,7 +489,11 @@ class SentinelMosaicTester:
         output_file = '/tmp/mosaic_tests' + '/' + preview_request.get_filename_list()[0]
         
         # add file to QGIS
-        layer_name = 'default'
+        custom_layer_name_input = self.dockwidget.custom_layer_name_input.text()
+        if len(custom_layer_name_input) != 0:
+            layer_name = custom_layer_name_input
+        else:
+            layer_name = 'custom_evalscript_layer'
         self.iface.addRasterLayer(output_file, layer_name)
         self.iface.messageBar().clearWidgets()
 
