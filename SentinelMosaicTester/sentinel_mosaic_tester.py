@@ -352,8 +352,7 @@ class SentinelMosaicTester:
         # date range for mosaicing
         max_cc = float(self.dockwidget.default_max_cc.text())
         # validate max_cc input
-        if max_cc < 0 or max_cc > 1:
-            raise ValueError("Please enter a max cloud cover proportion between 0 and 1.")
+        assert max_cc >= 0 and max_cc <= 1, 'Please enter a max cloud cover proportion between 0 and 1.'
 
         first_year, last_year = str(min(years)), str(max(years))
         start_date, end_date = f'{first_year}-01-01', f'{last_year}-12-30'
@@ -454,8 +453,7 @@ class SentinelMosaicTester:
         # set and validate max_cc
         max_cc = float(self.dockwidget.custom_max_cc.text())
 
-        if max_cc < 0 or max_cc > 1:
-            raise ValueError("Please enter a max cloud cover proportion between 0 and 1.")
+        assert max_cc >= 0 and max_cc <= 1, 'Please enter a max cloud cover proportion between 0 and 1.'
 
         # grab user inputted custom evalscript and substitute generic
         custom_evalscript_code = self.dockwidget.custom_evalscript_code.toPlainText()
